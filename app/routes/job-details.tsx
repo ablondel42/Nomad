@@ -82,10 +82,10 @@ export default function JobDetails() {
                     <ArrowLeftIcon className="w-4 h-4" /> Back to job listings
                 </Link>
 
-                <div className="bg-white dark:bg-gray-900 rounded-3xl p-6 sm:p-10 shadow-sm border border-gray-100 dark:border-gray-800 mb-8">
+                <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 sm:p-10 border-2 border-slate-200 dark:border-slate-700 mb-8">
                     <div className="flex flex-col md:flex-row md:items-start justify-between gap-6 mb-8">
                         <div className="flex items-start gap-6">
-                            <div className="h-16 w-16 md:h-20 md:w-20 rounded-2xl bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-800 border border-gray-200 dark:border-gray-700 flex items-center justify-center shrink-0 shadow-sm overflow-hidden p-1">
+                            <div className="h-16 w-16 md:h-20 md:w-20 rounded-xl bg-slate-100 dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 flex items-center justify-center shrink-0 overflow-hidden p-1">
                                 {job.companyLogo && !imgError ? (
                                     <img
                                         src={job.companyLogo}
@@ -94,7 +94,7 @@ export default function JobDetails() {
                                         onError={() => setImgError(true)}
                                     />
                                 ) : (
-                                    <BuildingIcon className="w-8 h-8 md:w-10 md:h-10 text-gray-400 dark:text-gray-500" />
+                                    <BuildingIcon className="w-8 h-8 md:w-10 md:h-10 text-slate-400 dark:text-slate-500" />
                                 )}
                             </div>
                             <div>
@@ -113,48 +113,48 @@ export default function JobDetails() {
                         </div>
 
                         <div className="flex items-center gap-3">
-                            <button className="p-3 bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-300 rounded-xl border border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors shadow-sm">
+                            <button className="p-3 bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-xl border-2 border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 hover:border-blue-600 transition-colors">
                                 <ShareIcon />
                             </button>
-                            <button className="p-3 bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-300 rounded-xl border border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-blue-600 dark:hover:text-blue-400 transition-colors shadow-sm cursor-pointer">
+                            <button className="p-3 bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-xl border-2 border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-blue-600 hover:border-blue-600 transition-colors cursor-pointer">
                                 <BookmarkIcon />
                             </button>
                         </div>
                     </div>
 
-                    <div className="flex flex-wrap items-center gap-3 pt-6 border-t border-gray-100 dark:border-gray-800 pb-2">
-                        <span className="px-4 py-2 bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-sm font-semibold rounded-xl border border-green-200 dark:border-green-800/50">
+                    <div className="flex flex-wrap items-center gap-3 pt-6 border-t-2 border-slate-100 dark:border-slate-800 pb-2">
+                        <span className="px-4 py-2 bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-300 text-sm font-bold rounded-lg border-2 border-green-200 dark:border-green-800">
                             {salary}
                         </span>
                         {job.jobLevel && job.jobLevel !== "Any" && (
-                            <span className="px-4 py-2 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-sm font-medium rounded-xl border border-blue-200 dark:border-blue-800/50">
+                            <span className="px-4 py-2 bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-300 text-sm font-bold rounded-lg border-2 border-blue-200 dark:border-blue-800">
                                 {job.jobLevel}
                             </span>
                         )}
                         {job.jobIndustry && job.jobIndustry.length > 0 && (
-                            <span className="px-4 py-2 bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 text-sm font-medium rounded-xl border border-purple-200 dark:border-purple-800/50">
+                            <span className="px-4 py-2 bg-purple-100 dark:bg-purple-900/50 text-purple-800 dark:text-purple-300 text-sm font-bold rounded-lg border-2 border-purple-200 dark:border-purple-800">
                                 {job.jobIndustry[0]}
                             </span>
                         )}
 
                         <div className="ml-auto mt-4 sm:mt-0 w-full sm:w-auto">
-                            <a href={job.url} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 w-full text-center bg-blue-600 text-white px-8 py-3.5 rounded-xl font-medium hover:bg-blue-700 transition-all shadow-md shadow-blue-600/20 active:scale-[0.98]">
+                            <a href={job.url} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 w-full text-center bg-blue-600 text-white px-8 py-3.5 rounded-xl font-bold hover:bg-blue-700 border-2 border-blue-800 dark:border-transparent transition-all active:scale-[0.98]">
                                 Apply Now <ExternalLinkIcon className="w-4 h-4" />
                             </a>
                         </div>
                     </div>
                 </div>
 
-                <div className="bg-white dark:bg-gray-900 rounded-3xl p-6 sm:p-10 shadow-sm border border-gray-100 dark:border-gray-800">
-                    <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6">About the Role</h2>
-                    <div className="prose dark:prose-invert max-w-none text-gray-600 dark:text-gray-300">
+                <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 sm:p-10 border-2 border-slate-200 dark:border-slate-700">
+                    <h2 className="text-xl font-black text-slate-900 dark:text-white mb-6">About the Role</h2>
+                    <div className="prose dark:prose-invert max-w-none text-slate-600 dark:text-slate-300">
                         <div style={{ whiteSpace: 'pre-wrap' }}>
                             {job.jobDescription}
                         </div>
-                        <div className="mt-10 p-6 bg-blue-50/50 dark:bg-blue-900/10 rounded-2xl border border-blue-100 dark:border-blue-800/50">
-                            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">Ready to apply?</h3>
-                            <p className="text-gray-600 dark:text-gray-400 mb-6">Join {job.companyName} and help build the future of our innovative platform.</p>
-                            <a href={job.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center gap-2 w-full sm:w-auto text-center bg-blue-600 text-white px-8 py-3 rounded-xl font-medium hover:bg-blue-700 transition-all shadow-md shadow-blue-600/20">
+                        <div className="mt-10 p-6 bg-slate-50 dark:bg-slate-800 rounded-2xl border-2 border-slate-200 dark:border-slate-700">
+                            <h3 className="text-lg font-black text-slate-900 dark:text-white mb-2">Ready to apply?</h3>
+                            <p className="text-slate-600 dark:text-slate-400 mb-6 font-medium">Join {job.companyName} and help build the future of our innovative platform.</p>
+                            <a href={job.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center gap-2 w-full sm:w-auto text-center bg-blue-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-blue-700 border-2 border-blue-800 dark:border-transparent transition-all active:scale-[0.98]">
                                 Submit Application <ExternalLinkIcon className="w-4 h-4" />
                             </a>
                         </div>

@@ -155,7 +155,7 @@ export default function Home() {
           handlePopularTag={handlePopularTag}
         />
 
-        <section ref={jobsSectionRef} className="pt-0 pb-10 md:pb-12 md:py-16 px-4 scroll-mt-4 bg-white/50 dark:bg-gray-950/50 backdrop-blur-xs mb-8 md:mb-16 rounded-b-[2rem] mx-4 md:mx-0">
+        <section ref={jobsSectionRef} className="pt-0 pb-10 md:pb-12 md:py-16 px-4 scroll-mt-4 mb-8 md:mb-16 mx-4 md:mx-0">
           <div className="max-w-4xl mx-auto">
             <JobList
               jobs={displayedJobs}

@@ -1,6 +1,8 @@
-import { Outlet, Link } from "react-router";
+import { Outlet, Link, useNavigate } from "react-router";
 import { useState, useRef, useEffect } from "react";
 import { CheckCircleIcon, UserIcon, SunIcon, MoonIcon } from "~/components/icons";
+import { supabase } from "~/utils/supabase";
+import type { Session } from "@supabase/supabase-js";
 
 export default function ApplicantLayout() {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -25,7 +27,28 @@ export default function ApplicantLayout() {
         }
     };
 
-    const isSignedIn = false;
+    const navigate = useNavigate();
+    const [session, setSession] = useState<Session | null>(null);
+
+    useEffect(() => {
+        supabase.auth.getSession().then(({ data: { session } }) => {
+            setSession(session);
+        });
+
+        const {
+            data: { subscription },
+        } = supabase.auth.onAuthStateChange((_event, session) => {
+            setSession(session);
+        });
+
+        return () => subscription.unsubscribe();
+    }, []);
+
+    const handleSignOut = async () => {
+        await supabase.auth.signOut();
+        setIsDropdownOpen(false);
+        navigate('/login');
+    };
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -67,38 +90,40 @@ export default function ApplicantLayout() {
                                 <UserIcon className="w-5 h-5" />
                             </button>
 
-                            {isDropdownOpen && (
-                                <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-900 rounded-xl shadow-lg border border-gray-100 dark:border-gray-800 py-2 z-50">
-                                    {!isSignedIn ? (
-                                        <>
-                                            <Link
-                                                to="/employer/login"
-                                                className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-                                                onClick={() => setIsDropdownOpen(false)}
-                                            >
-                                                Sign In
-                                            </Link>
-                                            <Link
-                                                to="/employer/register"
-                                                className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-                                                onClick={() => setIsDropdownOpen(false)}
-                                            >
-                                                Sign Up
-                                            </Link>
-                                        </>
-                                    ) : (
-                                        <button
-                                            className="w-full text-left block px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
-                                            onClick={() => {
-                                                setIsDropdownOpen(false);
-                                                console.log("Sign out clicked");
-                                            }}
-                                        >
-                                            Sign Out
-                                        </button>
-                                    )}
-                                </div>
-                            )}
+                                {isDropdownOpen && (
+                                    <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-slate-900 rounded-xl shadow-lg border-2 border-slate-200 dark:border-slate-700 py-2 z-50">
+                                        {!session ? (
+                                            <>
+                                                <Link
+                                                    to="/login"
+                                                    className="block px-4 py-2 text-sm font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                                                    onClick={() => setIsDropdownOpen(false)}
+                                                >
+                                                    Sign In
+                                                </Link>
+                                                <Link
+                                                    to="/signup"
+                                                    className="block px-4 py-2 text-sm font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                                                    onClick={() => setIsDropdownOpen(false)}
+                                                >
+                                                    Sign Up
+                                                </Link>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <div className="px-4 py-2 text-xs font-bold text-slate-500 dark:text-slate-400 border-b-2 border-slate-100 dark:border-slate-800 mb-2 truncate">
+                                                    {session.user.email}
+                                                </div>
+                                                <button
+                                                    className="w-full text-left block px-4 py-2 text-sm font-bold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                                                    onClick={handleSignOut}
+                                                >
+                                                    Sign Out
+                                                </button>
+                                            </>
+                                        )}
+                                    </div>
+                                )}
                         </div>
                     </div>
                 </div>
