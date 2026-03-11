@@ -81,7 +81,7 @@ export default function JobApply() {
                         </div>
 
                         <div className="pt-6">
-                            <button type="button" className="w-full bg-blue-600 text-white px-8 py-4 rounded-xl font-bold hover:bg-blue-700 border-2 border-blue-800 dark:border-transparent transition-all active:scale-[0.98]">
+                            <button type="button" className="w-full bg-blue-600 text-white px-8 py-4 rounded-xl font-bold hover:bg-blue-700 border-2 border-transparent transition-all active:scale-[0.98]">
                                 Submit Application
                             </button>
                         </div>

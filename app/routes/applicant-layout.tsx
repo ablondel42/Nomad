@@ -28,7 +28,7 @@ export default function ApplicantLayout() {
     };
 
     const navigate = useNavigate();
-    const [session, setSession] = useState<Session | null>(null);
+    const [session, setSession] = useState<Session | null | undefined>(undefined);
 
     useEffect(() => {
         supabase.auth.getSession().then(({ data: { session } }) => {
@@ -114,6 +114,13 @@ export default function ApplicantLayout() {
                                                 <div className="px-4 py-2 text-xs font-bold text-slate-500 dark:text-slate-400 border-b-2 border-slate-100 dark:border-slate-800 mb-2 truncate">
                                                     {session.user.email}
                                                 </div>
+                                                <Link
+                                                    to="/dashboard"
+                                                    className="block px-4 py-2 text-sm font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                                                    onClick={() => setIsDropdownOpen(false)}
+                                                >
+                                                    Dashboard
+                                                </Link>
                                                 <button
                                                     className="w-full text-left block px-4 py-2 text-sm font-bold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
                                                     onClick={handleSignOut}
@@ -130,10 +137,10 @@ export default function ApplicantLayout() {
             </nav>
 
             <main className="flex-1 pt-16">
-                <Outlet />
+                <Outlet context={{ session }} />
             </main>
-            <footer className="bg-white dark:bg-gray-950 border-t border-gray-100 dark:border-gray-800 py-12 text-center text-gray-500 dark:text-gray-400 text-sm">
-                <p>{new Date().getFullYear()} Nomad - By Ablondel42.</p>
+            <footer className="py-4 mb-4 text-center text-gray-500 dark:text-gray-400 text-sm">
+                <p>{new Date().getFullYear()} Nomad - By Ablondel42</p>
             </footer>
         </div>
     );

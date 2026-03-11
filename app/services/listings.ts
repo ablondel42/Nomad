@@ -1,7 +1,6 @@
-import type { ApiResponse } from '../types/types';
+import type { ApiResponse, JobicyJob } from '../types/types';
 import he from 'he';
-
-const pageCache = new Map<string, ApiResponse>();
+import { supabase } from '../utils/supabase';
 
 /**
  * Convert HTML string to readable plain text
@@ -78,20 +77,64 @@ export const getJobListings = async (
     locationTerm: string = ""
 ): Promise<ApiResponse> => {
 
-    const cacheKey = `${searchQuery}_${locationTerm}`;
+    // 1. Try fetching from Supabase cache first
+    try {
+        let query = supabase
+            .from('job_listings')
+            .select('*');
 
-    if (pageCache.has(cacheKey)) {
-        return pageCache.get(cacheKey)!;
+        if (searchQuery.trim()) {
+            query = query.contains('jobindustry', [searchQuery.trim()]);
+        }
+        if (locationTerm.trim()) {
+            query = query.ilike('jobgeo', `%${locationTerm.trim()}%`);
+        }
+
+        const { data: cachedJobs, error } = await query.order('pubdate', { ascending: false }).limit(100);
+
+        if (!error && cachedJobs && cachedJobs.length > 0) {
+            console.log("Serving jobs from Supabase cache");
+            
+            // Map the Supabase rows back to JobicyJob format
+            const jobs: JobicyJob[] = cachedJobs.map(job => ({
+                id: job.id,
+                url: job.url || '',
+                jobTitle: job.jobtitle || '',
+                companyName: job.companyname || '',
+                companyLogo: job.companylogo || '',
+                jobIndustry: job.jobindustry || [],
+                jobType: job.jobtype || [],
+                jobGeo: job.jobgeo || '',
+                jobLevel: job.joblevel || '',
+                jobExcerpt: job.jobexcerpt || '',
+                jobDescription: job.jobdescription || '',
+                pubDate: job.pubdate || '',
+                salaryMin: job.salarymin,
+                salaryMax: job.salarymax,
+                salaryCurrency: job.salarycurrency,
+                salaryPeriod: job.salaryperiod
+            }));
+            
+            return {
+                success: true,
+                jobs
+            };
+        }
+    } catch (e) {
+        console.warn("Error querying Supabase cache", e);
     }
 
+    // 2. Fetch from Jobicy API if cache is empty or missed
     try {
         let url = `https://jobicy.com/api/v2/remote-jobs?count=100`;
 
         if (searchQuery.trim()) {
+            // Note: Jobicy API requires industry term
             url += `&industry=${encodeURIComponent(searchQuery.trim())}`;
         }
 
         if (locationTerm.trim()) {
+            // Note: Jobicy API requires geo term
             url += `&geo=${encodeURIComponent(locationTerm.trim())}`;
         }
 
@@ -111,7 +154,41 @@ export const getJobListings = async (
             jobs: decodedData.jobs || []
         };
 
-        pageCache.set(cacheKey, result);
+        // 3. Upsert new jobs to Supabase
+        try {
+            if (result.jobs.length > 0) {
+                const upsertData = result.jobs.map(job => ({
+                    id: job.id,
+                    url: job.url || '',
+                    jobtitle: job.jobTitle || '',
+                    companyname: job.companyName || '',
+                    companylogo: job.companyLogo || '',
+                    jobindustry: job.jobIndustry || [],
+                    jobtype: job.jobType || [],
+                    jobgeo: job.jobGeo || '',
+                    joblevel: job.jobLevel || '',
+                    jobexcerpt: job.jobExcerpt || '',
+                    jobdescription: job.jobDescription || '',
+                    pubdate: job.pubDate || '',
+                    salarymin: job.salaryMin || null,
+                    salarymax: job.salaryMax || null,
+                    salarycurrency: job.salaryCurrency || null,
+                    salaryperiod: job.salaryPeriod || null
+                }));
+
+                // Upsert ignoring duplicates based on id
+                const { error: upsertError } = await supabase
+                    .from('job_listings')
+                    .upsert(upsertData, { onConflict: 'id' });
+                    
+                if (upsertError) {
+                    console.error('Error inserting jobs to Supabase:', upsertError);
+                }
+            }
+        } catch (e) {
+            console.warn("Error saving to Supabase", e);
+        }
+
         console.log(result);
         return result;
 

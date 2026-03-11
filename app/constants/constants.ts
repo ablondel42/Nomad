@@ -61,3 +61,14 @@ export const LOCATIONS = [
     { value: "usa", label: "USA" },
     { value: "vietnam", label: "Vietnam" },
 ]
+
+export const SENIORITIES = [
+    { value: "", label: "Any Seniority" },
+    { value: "entry", label: "Junior / Entry" },
+    { value: "midweight", label: "Midweight" },
+    { value: "senior", label: "Senior" },
+    { value: "lead", label: "Lead" },
+    { value: "manager", label: "Manager" },
+    { value: "director", label: "Director" },
+    { value: "executive", label: "Executive / VP" },
+]

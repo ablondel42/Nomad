@@ -1,0 +1,2 @@
+ALTER TABLE bookmarked_jobs ADD COLUMN status text;
+ALTER TABLE bookmarked_jobs ADD CONSTRAINT bookmarked_jobs_status_check CHECK (status IN ('Application sent', 'Interview in progress', 'Offer received', 'Offer accepted'));

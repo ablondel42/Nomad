@@ -138,7 +138,7 @@ export default function JobDetails() {
                         )}
 
                         <div className="ml-auto mt-4 sm:mt-0 w-full sm:w-auto">
-                            <a href={job.url} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 w-full text-center bg-blue-600 text-white px-8 py-3.5 rounded-xl font-bold hover:bg-blue-700 border-2 border-blue-800 dark:border-transparent transition-all active:scale-[0.98]">
+                            <a href={job.url} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 w-full text-center bg-blue-600 text-white px-8 py-3.5 rounded-xl font-bold hover:bg-blue-700 border-2 border-transparent transition-all active:scale-[0.98]">
                                 Apply Now <ExternalLinkIcon className="w-4 h-4" />
                             </a>
                         </div>
@@ -154,7 +154,7 @@ export default function JobDetails() {
                         <div className="mt-10 p-6 bg-slate-50 dark:bg-slate-800 rounded-2xl border-2 border-slate-200 dark:border-slate-700">
                             <h3 className="text-lg font-black text-slate-900 dark:text-white mb-2">Ready to apply?</h3>
                             <p className="text-slate-600 dark:text-slate-400 mb-6 font-medium">Join {job.companyName} and help build the future of our innovative platform.</p>
-                            <a href={job.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center gap-2 w-full sm:w-auto text-center bg-blue-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-blue-700 border-2 border-blue-800 dark:border-transparent transition-all active:scale-[0.98]">
+                            <a href={job.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center gap-2 w-full sm:w-auto text-center bg-blue-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-blue-700 border-2 border-transparent transition-all active:scale-[0.98]">
                                 Submit Application <ExternalLinkIcon className="w-4 h-4" />
                             </a>
                         </div>

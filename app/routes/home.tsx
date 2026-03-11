@@ -4,9 +4,10 @@ import { HeroSection } from "~/components/HeroSection";
 import { JobList } from "~/components/JobList";
 import type { JobicyJob } from "~/types/types";
 import { getJobListings } from "~/services/listings";
-
-import desktopBgDark from "~/assets/Desktop-Dark.png";
-import desktopBgLight from "~/assets/Desktop-Light.png";
+import Spline from '@splinetool/react-spline';
+import { useOutletContext, useNavigate } from "react-router";
+import type { Session } from "@supabase/supabase-js";
+import { supabase } from "~/utils/supabase";
 
 export function meta({ }: Route.MetaArgs) {
   return [
@@ -21,10 +22,15 @@ export default function Home() {
   const [allJobs, setAllJobs] = useState<JobicyJob[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [locationTerm, setLocationTerm] = useState("");
+  const [seniorityTerm, setSeniorityTerm] = useState("");
   const [displayedJobs, setDisplayedJobs] = useState<JobicyJob[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [bookmarkedJobIds, setBookmarkedJobIds] = useState<number[]>([]);
+  
+  const { session } = useOutletContext<{ session: Session | null | undefined }>();
+  const navigate = useNavigate();
 
   const jobsSectionRef = useRef<HTMLElement>(null);
 
@@ -52,14 +58,82 @@ export default function Home() {
     fetchJobs();
   }, []);
 
-  const performSearch = async (term: string, loc: string) => {
+  // Fetch bookmarks when session changes
+  useEffect(() => {
+    const fetchBookmarks = async () => {
+      if (!session?.user) {
+        setBookmarkedJobIds([]);
+        return;
+      }
+      try {
+        const { data, error } = await supabase
+          .from('bookmarked_jobs')
+          .select('job_id')
+          .eq('user_id', session.user.id);
+          
+        if (error) throw error;
+        setBookmarkedJobIds(data.map(bm => bm.job_id));
+      } catch (err) {
+        console.error("Error fetching bookmarks:", err);
+      }
+    };
+    fetchBookmarks();
+  }, [session]);
+
+  const toggleBookmark = async (e: React.MouseEvent, jobId: number) => {
+    e.preventDefault(); // Prevent navigating to job details
+    if (!session?.user) {
+      navigate('/login');
+      return;
+    }
+
+    const isBookmarked = bookmarkedJobIds.includes(jobId);
+    
+    // Optimistic UI update
+    setBookmarkedJobIds(prev => 
+      isBookmarked ? prev.filter(id => id !== jobId) : [...prev, jobId]
+    );
+
+    try {
+      if (isBookmarked) {
+        await supabase
+          .from('bookmarked_jobs')
+          .delete()
+          .eq('user_id', session.user.id)
+          .eq('job_id', jobId);
+      } else {
+        await supabase
+          .from('bookmarked_jobs')
+          .insert({ user_id: session.user.id, job_id: jobId });
+      }
+    } catch (err) {
+      console.error("Error toggling bookmark:", err);
+      // Revert on error
+      setBookmarkedJobIds(prev => 
+        isBookmarked ? [...prev, jobId] : prev.filter(id => id !== jobId)
+      );
+    }
+  };
+
+  const performSearch = async (term: string, loc: string, sen: string) => {
     setIsLoading(true);
     setDisplayedJobs([]);
     try {
       const response = await getJobListings(term, loc);
       if (response.success) {
-        setAllJobs(response.jobs);
-        setDisplayedJobs(response.jobs.slice(0, PAGE_SIZE));
+        let filteredJobs = response.jobs;
+        if (sen) {
+          filteredJobs = response.jobs.filter((job) => {
+            const level = job.jobLevel?.toLowerCase() || "";
+            // Special handling for the grouped categories we created
+            if (sen === "entry") return level.includes("entry") || level.includes("junior");
+            if (sen === "manager") return level.includes("manager") || level.includes("management");
+            if (sen === "executive") return level.includes("executive") || level.includes("vp");
+            return level.includes(sen);
+          });
+        }
+        setAllJobs(filteredJobs);
+        setDisplayedJobs(filteredJobs.slice(0, PAGE_SIZE));
         setCurrentPage(1);
       }
     } catch (err) {
@@ -72,19 +146,24 @@ export default function Home() {
 
   const handleSearchTermChange = (term: string) => {
     setSearchTerm(term);
-    performSearch(term, locationTerm);
+    performSearch(term, locationTerm, seniorityTerm);
   };
 
   const handleLocationTermChange = (loc: string) => {
     setLocationTerm(loc);
-    performSearch(searchTerm, loc);
+    performSearch(searchTerm, loc, seniorityTerm);
   };
 
-  const handleSearch = () => performSearch(searchTerm, locationTerm);
+  const handleSeniorityTermChange = (sen: string) => {
+    setSeniorityTerm(sen);
+    performSearch(searchTerm, locationTerm, sen);
+  };
+
+  const handleSearch = () => performSearch(searchTerm, locationTerm, seniorityTerm);
 
   const handlePopularTag = (tag: string) => {
     setSearchTerm(tag);
-    performSearch(tag, locationTerm);
+    performSearch(tag, locationTerm, seniorityTerm);
   };
 
   const loadMoreJobs = () => {
@@ -104,6 +183,7 @@ export default function Home() {
   const handleClearFilters = async () => {
     setSearchTerm("");
     setLocationTerm("");
+    setSeniorityTerm("");
     setIsLoading(true);
     setDisplayedJobs([]);
     try {
@@ -137,25 +217,25 @@ export default function Home() {
   }
 
   return (
-    <>
-      <style>{`
-        .home-bg-theme { background-image: url('${desktopBgLight}'); }
-        .dark .home-bg-theme { background-image: url('${desktopBgDark}'); }
-      `}</style>
-      <div
-        className="home-bg-theme bg-[length:100%_auto] bg-top bg-no-repeat bg-fixed min-h-full"
-      >
+    <div className="relative min-h-screen w-full">
+      <div className="fixed inset-0 w-full h-full z-0 overflow-hidden">
+        <Spline scene="https://prod.spline.design/X7BTa0JTGontw8zg/scene.splinecode" />
+      </div>
+
+      <div className="relative z-10 w-full min-h-screen">
         <HeroSection
           searchTerm={searchTerm}
           setSearchTerm={handleSearchTermChange}
           locationTerm={locationTerm}
           setLocationTerm={handleLocationTermChange}
+          seniorityTerm={seniorityTerm}
+          setSeniorityTerm={handleSeniorityTermChange}
           handleSearch={handleSearch}
           isLoading={isLoading}
           handlePopularTag={handlePopularTag}
         />
 
-        <section ref={jobsSectionRef} className="pt-0 pb-10 md:pb-12 md:py-16 px-4 scroll-mt-4 mb-8 md:mb-16 mx-4 md:mx-0">
+        <section ref={jobsSectionRef} className="pt-0 pb-10 md:pb-12 md:py-16 px-4 scroll-mt-4 md:mb-4 mx-4 md:mx-0">
           <div className="max-w-4xl mx-auto">
             <JobList
               jobs={displayedJobs}
@@ -166,10 +246,12 @@ export default function Home() {
               onClearFilters={handleClearFilters}
               onLoadMore={loadMoreJobs}
               onViewAll={handleViewAll}
+              bookmarkedJobIds={bookmarkedJobIds}
+              onToggleBookmark={toggleBookmark}
             />
           </div>
         </section>
       </div>
-    </>
+    </div>
   );
 }
